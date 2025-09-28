@@ -5,6 +5,7 @@ import QuizSelection from "@/components/QuizSelection";
 import QuizInterface from "@/components/QuizInterface";
 import ResultsScreen from "@/components/ResultsScreen";
 import Leaderboard from "@/components/Leaderboard";
+import { getQuestionsByChapter, type Question as QuestionType } from "@/data/questionBank";
 
 type Screen = "welcome" | "dashboard" | "quiz-selection" | "quiz" | "results" | "leaderboard";
 
@@ -62,37 +63,80 @@ const Index = () => {
   const [timeRemaining, setTimeRemaining] = useState(30 * 60); // 30 minutes
   const [selectedChapter, setSelectedChapter] = useState<string>("");
   const [selectedLanguage, setSelectedLanguage] = useState<string>("");
+  const [currentQuestions, setCurrentQuestions] = useState<QuestionType[]>([]);
 
-  // Mock data - in real app, this would come from Firebase
+  // Complete CCC Course Chapters
   const mockChapters: Chapter[] = [
-    { id: "basic-concepts", name: "Basic Computer Concepts", nameHindi: "बुनियादी कंप्यूटर अवधारणाएं", totalQuestions: 250, completedQuestions: 45 },
-    { id: "input-output", name: "Input & Output Devices", nameHindi: "इनपुट और आउटपुट डिवाइस", totalQuestions: 250, completedQuestions: 120 },
-    { id: "memory", name: "Computer Memory", nameHindi: "कंप्यूटर मेमोरी", totalQuestions: 250, completedQuestions: 0 },
-    { id: "software", name: "System Software", nameHindi: "सिस्टम सॉफ्टवेयर", totalQuestions: 250, completedQuestions: 250 },
-    { id: "internet", name: "Internet & Web", nameHindi: "इंटरनेट और वेब", totalQuestions: 250, completedQuestions: 75 },
-    { id: "ms-office", name: "MS Office", nameHindi: "एमएस ऑफिस", totalQuestions: 250, completedQuestions: 30 },
-  ];
-
-  const mockQuestions: Question[] = [
-    {
-      id: "q1",
-      question: "What does CPU stand for?",
-      options: ["Central Processing Unit", "Computer Personal Unit", "Central Program Unit", "Computer Processing Unit"],
-      correctAnswer: 0
+    { 
+      id: "intro-computer", 
+      name: "Introduction to Computer", 
+      nameHindi: "कंप्यूटर का परिचय", 
+      totalQuestions: 250, 
+      completedQuestions: 0 
     },
-    {
-      id: "q2", 
-      question: "Which of the following is an input device?",
-      options: ["Monitor", "Printer", "Keyboard", "Speaker"],
-      correctAnswer: 2
+    { 
+      id: "operating-system", 
+      name: "Introduction to Operating System", 
+      nameHindi: "ऑपरेटिंग सिस्टम का परिचय", 
+      totalQuestions: 250, 
+      completedQuestions: 0 
     },
-    {
-      id: "q3",
-      question: "What is the smallest unit of data in a computer?",
-      options: ["Byte", "Bit", "Kilobyte", "Word"],
-      correctAnswer: 1
+    { 
+      id: "word-processing", 
+      name: "Word Processing", 
+      nameHindi: "वर्ड प्रोसेसिंग", 
+      totalQuestions: 250, 
+      completedQuestions: 0 
     },
-    // Add more questions as needed...
+    { 
+      id: "spreadsheet", 
+      name: "Spreadsheet", 
+      nameHindi: "स्प्रेडशीट", 
+      totalQuestions: 250, 
+      completedQuestions: 0 
+    },
+    { 
+      id: "presentation", 
+      name: "Presentation (Impress)", 
+      nameHindi: "प्रेजेंटेशन (इम्प्रेस)", 
+      totalQuestions: 250, 
+      completedQuestions: 0 
+    },
+    { 
+      id: "internet-www", 
+      name: "Introduction to Internet and WWW", 
+      nameHindi: "इंटरनेट और WWW का परिचय", 
+      totalQuestions: 250, 
+      completedQuestions: 0 
+    },
+    { 
+      id: "email-social", 
+      name: "E-mail, Social Networking and e-Governance", 
+      nameHindi: "ई-मेल, सोशल नेटवर्किंग और ई-गवर्नेंस", 
+      totalQuestions: 250, 
+      completedQuestions: 0 
+    },
+    { 
+      id: "digital-financial", 
+      name: "Digital Financial Tools and Applications", 
+      nameHindi: "डिजिटल वित्तीय उपकरण और अनुप्रयोग", 
+      totalQuestions: 250, 
+      completedQuestions: 0 
+    },
+    { 
+      id: "cyber-security", 
+      name: "Overview of Cyber Security", 
+      nameHindi: "साइबर सुरक्षा का अवलोकन", 
+      totalQuestions: 250, 
+      completedQuestions: 0 
+    },
+    { 
+      id: "future-skills-ai", 
+      name: "Future Skills and Artificial Intelligence", 
+      nameHindi: "भविष्य के कौशल और कृत्रिम बुद्धिमत्ता", 
+      totalQuestions: 250, 
+      completedQuestions: 0 
+    }
   ];
 
   const mockQuizHistory: QuizAttempt[] = [
@@ -129,6 +173,8 @@ const Index = () => {
   };
 
   const handleSelectChapter = (chapterId: string, language: string) => {
+    const questions = getQuestionsByChapter(chapterId, 50); // Get 50 questions for this batch
+    setCurrentQuestions(questions);
     setSelectedChapter(chapterId);
     setSelectedLanguage(language);
     setCurrentQuestionIndex(0);
@@ -164,7 +210,7 @@ const Index = () => {
 
   const calculateResults = (): { score: number; correctAnswers: number; results: QuizResult[] } => {
     let correctCount = 0;
-    const results: QuizResult[] = mockQuestions.map((question, index) => {
+    const results: QuizResult[] = currentQuestions.map((question, index) => {
       const userAnswer = userAnswers[index] ?? -1;
       const isCorrect = userAnswer === question.correctAnswer;
       if (isCorrect) correctCount++;
@@ -179,7 +225,7 @@ const Index = () => {
       };
     });
 
-    const score = Math.round((correctCount / mockQuestions.length) * 100);
+    const score = Math.round((correctCount / currentQuestions.length) * 100);
     return { score, correctAnswers: correctCount, results };
   };
 
@@ -212,7 +258,7 @@ const Index = () => {
         return (
           <QuizInterface
             chapterName={currentChapter?.name || "Quiz"}
-            questions={mockQuestions}
+            questions={currentQuestions}
             currentQuestionIndex={currentQuestionIndex}
             selectedAnswer={selectedAnswer}
             timeRemaining={timeRemaining}
@@ -230,7 +276,7 @@ const Index = () => {
           <ResultsScreen
             chapterName={currentChapter2?.name || "Quiz"}
             score={score}
-            totalQuestions={mockQuestions.length}
+            totalQuestions={currentQuestions.length}
             correctAnswers={correctAnswers}
             results={results}
             onBackToDashboard={() => setCurrentScreen("dashboard")}
